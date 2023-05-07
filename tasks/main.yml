@@ -1,0 +1,36 @@
+---
+
+- name: Shutdown the VM 
+  vmware_guest:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    name: "{{ vm_name }}"
+    state: shutdownguest
+    state_change_timeout: 300
+  when: "{{ vmfacts.instance.hw_power_status == 'poweredOn' }}"
+
+- name: Update VM CPU count
+  vmware_guest:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    name: "{{ vm_name }}"
+    state: present
+    hardware:
+      hotadd_cpu: true
+      num_cpus: "{{ vm_cpus }}"
+      num_cpu_cores_per_socket: "{{ cpu_socket }}"
+      hotadd_memory: true
+
+- name: Power On the VM
+  vmware_guest:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    name: "{{ vm_name }}"
+    state: poweredon
+  delegate_to: localhost
